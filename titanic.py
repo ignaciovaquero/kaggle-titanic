@@ -5,6 +5,7 @@ from sklearn.pipeline import Pipeline
 from sklearn.compose import ColumnTransformer
 from sklearn.preprocessing import StandardScaler
 from sklearn.ensemble import GradientBoostingClassifier
+from sklearn.metrics import confusion_matrix, classification_report
 
 
 class Titanic:
@@ -12,12 +13,16 @@ class Titanic:
         self.data = pd.read_csv(train_data)
         self.test = pd.read_csv(test_data)
         self.data_cleaned = self.clean_data(self.data)
-        self.labels = self.extract_labels()
+        self.labels = self._extract_labels(self.data)
+        self.names = self._extract_names(self.data)
         self.gb = GradientBoostingClassifier(n_estimators=200)
 
 
-    def extract_labels(self):
-        return self.data.dropna(subset=['Embarked'])['Survived'].to_numpy()
+    def _extract_labels(self, data):
+        return data.dropna(subset=['Embarked'])['Survived'].to_numpy()
+
+    def _extract_names(self, data):
+        return data.dropna(subset=['Embarked'])['Name'].to_numpy()
 
 
     def clean_data(self, data):
@@ -56,4 +61,11 @@ class Titanic:
 
 
     def predict(self, data):
-        return self.gb.predict(self.clean_data(data))
+        names = self._extract_names(data)
+        y = self.gb.predict(self.clean_data(data))
+        predicted = pd.DataFrame(data=y, columns=['Survived'])
+        predicted['Name'] = names
+        return predicted
+
+    def confusion_matrix(self, predicted):
+        return confusion_matrix(self.labels, predicted)

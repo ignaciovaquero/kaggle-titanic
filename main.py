@@ -1,4 +1,6 @@
 from titanic import Titanic
+from sklearn.metrics import confusion_matrix, classification_report
+from sklearn.model_selection import cross_val_score
 
 
 if __name__ == "__main__":
@@ -6,5 +8,6 @@ if __name__ == "__main__":
     t.fit()
     y_predict = t.predict(t.data)
     y_label = t.labels
-    print(y_predict[:5])
-    print(y_label[:5])
+    print(confusion_matrix(y_label, y_predict['Survived']))
+    print(classification_report(y_label, y_predict['Survived']))
+
